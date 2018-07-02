@@ -1,1 +1,6 @@
+torchvision
+scipy
+torch
+cv2
+numpy
 
