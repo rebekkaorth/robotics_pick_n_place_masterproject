@@ -11,6 +11,8 @@ ADD . /app
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
+# pip install numpy scipy opencv-python matplotlib
+# pip install torch==0.3.1 torchvision==0.2.0
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
@@ -20,3 +22,5 @@ ENV NAME World
 
 # Run app.py when the container launches
 CMD ["python", "app.py"]
+# app.py file needs to be run with a set of tags
+# python main.py --is_sim --method 'reactive' --experience_replay --grasp_only --save_visualizations
