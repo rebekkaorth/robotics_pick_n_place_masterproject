@@ -1,6 +1,6 @@
 torchvision
 scipy
 torch
-cv2
+opencv-python
 numpy
 

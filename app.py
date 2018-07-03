@@ -25,7 +25,7 @@ import cv2
 from collections import namedtuple
 import torch
 from torch.autograd import Variable
-from robot import Robot
+from robot_in_training import Robot
 from trainer import Trainer
 from logger import Logger
 import utils
@@ -77,19 +77,23 @@ def main(args):
     np.random.seed(random_seed)
 
     # Initialize pick-and-place system (camera and robot)
+    """
     robot = Robot(is_sim, obj_mesh_dir, num_obj, workspace_limits,
                   tcp_host_ip, tcp_port, rtc_host_ip, rtc_port,
                   is_testing, test_preset_cases, test_preset_file)
-
+    """
     # Initialize trainer
     trainer = Trainer(method, push_rewards, future_reward_discount,
                       is_testing, load_snapshot, snapshot_file, force_cpu)
 
     # Initialize data logger
     logger = Logger(continue_logging, logging_directory)
+
+    """
     logger.save_camera_info(robot.cam_intrinsics, robot.cam_pose,
                             robot.cam_depth_scale)  # Save camera intrinsics and pose
     logger.save_heightmap_info(workspace_limits, heightmap_resolution)  # Save heightmap parameters
+    """
 
     # Find last executed iteration of pre-loaded log, and load execution info and RL variables
     if continue_logging:
@@ -250,17 +254,17 @@ def main(args):
         iteration_time_0 = time.time()
 
         # Make sure simulation is still stable (if not, reset simulation)
-        if is_sim: robot.check_sim()
+        if is_sim: # robot.check_sim()
 
         # Get latest RGB-D image
 
         # in training the images should not come from camera but from dataset
-        color_img, depth_img = robot.get_camera_data()
-        depth_img = depth_img * robot.cam_depth_scale  # Apply depth scale from calibration
+         color_img, depth_img = robot.get_camera_data()
+         depth_img = depth_img * robot.cam_depth_scale  # Apply depth scale from calibration
 
         # Get heightmap from RGB-D image (by re-projecting 3D point cloud)
-        color_heightmap, depth_heightmap = utils.get_heightmap(color_img, depth_img, robot.cam_intrinsics,
-                                                               robot.cam_pose, workspace_limits, heightmap_resolution)
+         color_heightmap, depth_heightmap = utils.get_heightmap(color_img, depth_img, robot.cam_intrinsics,
+                                                            robot.cam_pose, workspace_limits, heightmap_resolution)
         valid_depth_heightmap = depth_heightmap.copy()
         valid_depth_heightmap[np.isnan(valid_depth_heightmap)] = 0
 
