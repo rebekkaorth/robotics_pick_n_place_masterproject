@@ -1,3 +1,16 @@
+# !/usr/bin/env python
+
+from collections import OrderedDict
+import numpy as np
+# from scipy import ndimage
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.autograd import Variable
+import torchvision
+# import matplotlib.pyplot as plt
+# import time
+
 """
 @article{zeng2018learning,
   title={Learning Synergies between Pushing and Grasping with Self-supervised Deep Reinforcement Learning},
@@ -16,19 +29,6 @@ potentially decide on one of the models
 -> probably: supervised learning 
 """
 
-# !/usr/bin/env python
-
-from collections import OrderedDict
-import numpy as np
-# from scipy import ndimage
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.autograd import Variable
-import torchvision
-# import matplotlib.pyplot as plt
-# import time
-
 
 class reactive_net(nn.Module):
 
@@ -41,7 +41,6 @@ class reactive_net(nn.Module):
         self.push_depth_trunk = torchvision.models.densenet.densenet121(pretrained=True)
         self.grasp_color_trunk = torchvision.models.densenet.densenet121(pretrained=True)
         self.grasp_depth_trunk = torchvision.models.densenet.densenet121(pretrained=True)
-
         self.num_rotations = 16
 
         # Construct network branches for pushing and grasping

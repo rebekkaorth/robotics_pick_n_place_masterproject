@@ -20,8 +20,10 @@ import torch
 import torch.nn.functional as F
 from torch.autograd import Variable
 from utils import CrossEntropyLoss2d
-from models import reactive_net, reinforcement_net
+from model import reactive_net, reinforcement_net
 from scipy import ndimage
+
+
 # import matplotlib.pyplot as plt
 
 
@@ -42,6 +44,11 @@ class Trainer(object):
             print("CUDA is *NOT* detected. Running with only CPU.")
             self.use_cuda = False
 
+            """
+            If decision was made on which method to use -> the code below can be modified
+            Trend: supervised learning
+            Both methods use different loss functions (classification loss --- Huber loss) 
+            """
         # Fully convolutional classification network for supervised learning
         if self.method == 'reactive':
             self.model = reactive_net(self.use_cuda)
@@ -168,9 +175,9 @@ class Trainer(object):
 
         # Construct minibatch of size 1 (b,c,h,w)
         input_color_image.shape = (
-        input_color_image.shape[0], input_color_image.shape[1], input_color_image.shape[2], 1)
+            input_color_image.shape[0], input_color_image.shape[1], input_color_image.shape[2], 1)
         input_depth_image.shape = (
-        input_depth_image.shape[0], input_depth_image.shape[1], input_depth_image.shape[2], 1)
+            input_depth_image.shape[0], input_depth_image.shape[1], input_depth_image.shape[2], 1)
         input_color_data = torch.from_numpy(input_color_image.astype(np.float32)).permute(3, 2, 0, 1)
         input_depth_data = torch.from_numpy(input_depth_image.astype(np.float32)).permute(3, 2, 0, 1)
 
@@ -192,7 +199,7 @@ class Trainer(object):
                     push_predictions = np.concatenate((push_predictions,
                                                        F.softmax(output_prob[rotate_idx][0], dim=1).cpu().data.numpy()[
                                                        :, 0, (padding_width / 2):(
-                                                                   color_heightmap_2x.shape[0] / 2 - padding_width / 2),
+                                                               color_heightmap_2x.shape[0] / 2 - padding_width / 2),
                                                        (padding_width / 2):(color_heightmap_2x.shape[
                                                                                 0] / 2 - padding_width / 2)]), axis=0)
                     grasp_predictions = np.concatenate((grasp_predictions,
@@ -277,7 +284,7 @@ class Trainer(object):
             print('Future reward: %f' % (future_reward))
             expected_reward = current_reward + self.future_reward_discount * future_reward
             print('Expected reward: %f + %f x %f = %f' % (
-            current_reward, self.future_reward_discount, future_reward, expected_reward))
+                current_reward, self.future_reward_discount, future_reward, expected_reward))
             return expected_reward, current_reward
 
     # Compute labels and backpropagate
@@ -434,7 +441,7 @@ class Trainer(object):
 
                 loss_value = loss_value / 2
 
-            print('Training loss: %f' % (loss_value))
+            print('Training loss: %f' % loss_value)
             self.optimizer.step()
 
     def get_prediction_vis(self, predictions, color_heightmap, best_pix_ind):
@@ -459,7 +466,7 @@ class Trainer(object):
                 background_image = ndimage.rotate(color_heightmap, rotate_idx * (360.0 / num_rotations), reshape=False,
                                                   order=0)
                 prediction_vis = (
-                            0.5 * cv2.cvtColor(background_image, cv2.COLOR_RGB2BGR) + 0.5 * prediction_vis).astype(
+                        0.5 * cv2.cvtColor(background_image, cv2.COLOR_RGB2BGR) + 0.5 * prediction_vis).astype(
                     np.uint8)
                 if tmp_row_canvas is None:
                     tmp_row_canvas = prediction_vis
@@ -522,4 +529,3 @@ class Trainer(object):
 
         best_pix_ind = np.unravel_index(np.argmax(grasp_predictions), grasp_predictions.shape)
         return best_pix_ind
-
