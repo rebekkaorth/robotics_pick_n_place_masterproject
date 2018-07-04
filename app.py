@@ -18,6 +18,8 @@ import os
 import random
 import threading
 import argparse
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sc
@@ -25,7 +27,6 @@ import cv2
 from collections import namedtuple
 import torch
 from torch.autograd import Variable
-from robot_in_training import Robot
 from trainer import Trainer
 from logger import Logger
 import utils
@@ -33,30 +34,25 @@ import utils
 
 def main(args):
     # --------------- Setup options ---------------
-    is_sim = args.is_sim  # Run in simulation?
-    obj_mesh_dir = os.path.abspath(
-        args.obj_mesh_dir) if is_sim else None  # Directory containing 3D mesh files (.obj) of objects to be added to simulation
-    num_obj = args.num_obj if is_sim else None  # Number of objects to add to simulation
-    tcp_host_ip = args.tcp_host_ip if not is_sim else None  # IP and port to robot arm as TCP client (UR5)
-    tcp_port = args.tcp_port if not is_sim else None
-    rtc_host_ip = args.rtc_host_ip if not is_sim else None  # IP and port to robot arm as real-time client (UR5)
-    rtc_port = args.rtc_port if not is_sim else None
-    if is_sim:
-        workspace_limits = np.asarray([[-0.724, -0.276], [-0.224, 0.224], [-0.0001,
-                                                                           0.4]])  # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
-    else:
-        workspace_limits = np.asarray([[0.3, 0.748], [-0.224, 0.224], [-0.255,
-                                                                       -0.1]])  # Cols: min max, Rows: x y z (define workspace limits in robot coordinates)
+    obj_mesh_dir = os.path.abspath(args.obj_mesh_dir)  # Directory containing 3D mesh files (.obj) of objects to be added to simulation
+    num_obj = args.num_obj  # Number of objects to add to simulation
+    tcp_host_ip = args.tcp_host_ip  # IP and port to robot arm as TCP client (UR5)
+    tcp_port = args.tcp_port
+    rtc_host_ip = args.rtc_host_ip  # IP and port to robot arm as real-time client (UR5)
+    rtc_port = args.rtc_port
+
     heightmap_resolution = args.heightmap_resolution  # Meters per pixel of heightmap
     random_seed = args.random_seed
     force_cpu = args.force_cpu
 
     # ------------- Algorithm options -------------
     method = args.method  # 'reactive' (supervised learning) or 'reinforcement' (reinforcement learning ie Q-learning)
-    push_rewards = args.push_rewards if method == 'reinforcement' else None  # Use immediate rewards (from change detection) for pushing?
+    # Use immediate rewards (from change detection) for pushing?
+    # push_rewards = args.push_rewards if method == 'reinforcement' else None
     future_reward_discount = args.future_reward_discount
     experience_replay = args.experience_replay  # Use prioritized experience replay?
-    heuristic_bootstrap = args.heuristic_bootstrap  # Use handcrafted grasping algorithm when grasping fails too many times in a row?
+    # Use handcrafted grasping algorithm when grasping fails too many times in a row?
+    heuristic_bootstrap = args.heuristic_bootstrap
     explore_rate_decay = args.explore_rate_decay
     grasp_only = args.grasp_only
 
@@ -77,14 +73,9 @@ def main(args):
     np.random.seed(random_seed)
 
     # Initialize pick-and-place system (camera and robot)
-    """
-    robot = Robot(is_sim, obj_mesh_dir, num_obj, workspace_limits,
-                  tcp_host_ip, tcp_port, rtc_host_ip, rtc_port,
-                  is_testing, test_preset_cases, test_preset_file)
-    """
+
     # Initialize trainer
-    trainer = Trainer(method, push_rewards, future_reward_discount,
-                      is_testing, load_snapshot, snapshot_file, force_cpu)
+    trainer = Trainer(is_testing, load_snapshot, snapshot_file, force_cpu)
 
     # Initialize data logger
     logger = Logger(continue_logging, logging_directory)
@@ -138,16 +129,19 @@ def main(args):
                 trainer.is_exploit_log.append([0 if explore_actions else 1])
                 logger.write_to_log('is-exploit', trainer.is_exploit_log)
 
-                # If heuristic bootstrapping is enabled: if change has not been detected more than 2 times, execute heuristic algorithm to detect grasps/pushes
-                # NOTE: typically not necessary and can reduce final performance.
+                """
+                 If heuristic bootstrapping is enabled: if change has not been detected more than 2 times, execute heuristic algorithm to detect grasps/pushes
+                NOTE: typically not necessary and can reduce final performance.
+                """
+
                 if heuristic_bootstrap and nonlocal_variables['primitive_action'] == 'push' and no_change_count[0] >= 2:
                     print('Change not detected for more than two pushes. Running heuristic pushing.')
                     nonlocal_variables['best_pix_ind'] = trainer.push_heuristic(valid_depth_heightmap)
                     no_change_count[0] = 0
                     predicted_value = push_predictions[nonlocal_variables['best_pix_ind']]
                     use_heuristic = True
-                elif heuristic_bootstrap and nonlocal_variables['primitive_action'] == 'grasp' and no_change_count[
-                    1] >= 2:
+                elif heuristic_bootstrap and nonlocal_variables['primitive_action'] == 'grasp' and no_change_count[1] \
+                        >= 2:
                     print('Change not detected for more than two grasps. Running heuristic grasping.')
                     nonlocal_variables['best_pix_ind'] = trainer.grasp_heuristic(valid_depth_heightmap)
                     no_change_count[1] = 0
@@ -172,6 +166,7 @@ def main(args):
                 trainer.predicted_value_log.append([predicted_value])
                 logger.write_to_log('predicted-value', trainer.predicted_value_log)
 
+                """
                 # Compute 3D position of pixel
                 print('Action: %s at (%d, %d, %d)' % (
                     nonlocal_variables['primitive_action'], nonlocal_variables['best_pix_ind'][0],
@@ -183,7 +178,9 @@ def main(args):
                 primitive_position = [best_pix_x * heightmap_resolution + workspace_limits[0][0],
                                       best_pix_y * heightmap_resolution + workspace_limits[1][0],
                                       valid_depth_heightmap[best_pix_y][best_pix_x] + workspace_limits[2][0]]
+                """
 
+                """
                 # If pushing, adjust start position, and make sure z value is safe and not too low
                 if nonlocal_variables[
                     'primitive_action'] == 'push':  # or nonlocal_variables['primitive_action'] == 'place':
@@ -199,7 +196,8 @@ def main(args):
                     else:
                         safe_z_position = np.max(local_region) + workspace_limits[2][0]
                     primitive_position[2] = safe_z_position
-
+                """
+                """
                 # Save executed primitive
                 if nonlocal_variables['primitive_action'] == 'push':
                     trainer.executed_action_log.append(
@@ -240,11 +238,13 @@ def main(args):
                 nonlocal_variables['executing_action'] = False
 
             time.sleep(0.01)
+    """
 
     action_thread = threading.Thread(target=process_actions)
     action_thread.daemon = True
     action_thread.start()
     exit_called = False
+
     # -------------------------------------------------------------
     # -------------------------------------------------------------
 
@@ -253,18 +253,12 @@ def main(args):
         print('\n%s iteration: %d' % ('Testing' if is_testing else 'Training', trainer.iteration))
         iteration_time_0 = time.time()
 
-        # Make sure simulation is still stable (if not, reset simulation)
-        if is_sim: # robot.check_sim()
-
-        # Get latest RGB-D image
-
         # in training the images should not come from camera but from dataset
-         color_img, depth_img = robot.get_camera_data()
-         depth_img = depth_img * robot.cam_depth_scale  # Apply depth scale from calibration
+        color_img, depth_img = robot.get_camera_data()
+        depth_img = depth_img * robot.cam_depth_scale  # Apply depth scale from calibration
 
         # Get heightmap from RGB-D image (by re-projecting 3D point cloud)
-         color_heightmap, depth_heightmap = utils.get_heightmap(color_img, depth_img, robot.cam_intrinsics,
-                                                            robot.cam_pose, workspace_limits, heightmap_resolution)
+        color_heightmap, depth_heightmap = utils.get_heightmap(color_img, depth_img, heightmap_resolution)
         valid_depth_heightmap = depth_heightmap.copy()
         valid_depth_heightmap[np.isnan(valid_depth_heightmap)] = 0
 
@@ -272,44 +266,16 @@ def main(args):
         logger.save_images(trainer.iteration, color_img, depth_img, '0')
         logger.save_heightmaps(trainer.iteration, color_heightmap, valid_depth_heightmap, '0')
 
-        """
-         Maybe can be left out, when training is not done in simulation environment (=in Gazebo itself) but with images?
-         Needs to be modified according to Shadow/ Gazebo simulation environment
-        """
-        # Reset simulation or pause real-world training if table is empty 
-        stuff_count = np.zeros(valid_depth_heightmap.shape)
-        stuff_count[valid_depth_heightmap > 0.02] = 1
-        empty_threshold = 300
-        if is_sim and is_testing:
-            empty_threshold = 10
-        if np.sum(stuff_count) < empty_threshold or (is_sim and no_change_count[0] + no_change_count[1] > 10):
-            no_change_count = [0, 0]
-            if is_sim:
-                print('Not enough objects in view (value: %d)! Repositioning objects.' % (np.sum(stuff_count)))
-                """
-                .restart_sim() + add_objects() need to be modified according to Shadow robotics robot
-                """
-                robot.restart_sim()
-                robot.add_objects()
-                if is_testing:  # If at end of test run, re-load original weights (before test run)
-                    trainer.model.load_state_dict(torch.load(snapshot_file))
-            else:
-                # print('Not enough stuff on the table (value: %d)! Pausing for 30 seconds.' % (np.sum(stuff_count)))
-                # time.sleep(30)
-                print('Not enough stuff on the table (value: %d)! Flipping over bin of objects...' % (
-                    np.sum(stuff_count)))
-                """
-                .restart_real() needs to modified according to Shadow robotics robot
-                """
-                robot.restart_real()
+        trainer.clearance_log.append([trainer.iteration])
+        logger.write_to_log('clearance', trainer.clearance_log)
 
-            trainer.clearance_log.append([trainer.iteration])
-            logger.write_to_log('clearance', trainer.clearance_log)
+        if is_testing:
             if is_testing and len(trainer.clearance_log) >= max_test_trials:
                 exit_called = True  # Exit after training thread (backprop and saving labels)
             continue
 
         if not exit_called:
+
             # Run forward pass with network to get affordances
             push_predictions, grasp_predictions, state_feat = trainer.forward(color_heightmap, valid_depth_heightmap,
                                                                               is_volatile=True)

@@ -3,4 +3,5 @@ scipy
 torch
 opencv-python
 numpy
+matplotlib
 

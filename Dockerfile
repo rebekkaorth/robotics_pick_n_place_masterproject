@@ -1,5 +1,7 @@
 # Use an official Python runtime as a parent image
-FROM python:2.7-slim
+# FROM python:2.7-slim
+FROM rebor94/robotic_grip_grab_shadow_robotics:latest
+
 MAINTAINER Rebkka Orth <2312288O@student.gla.ac.uk>
 
 # Set the working directory to /app
@@ -9,7 +11,7 @@ WORKDIR /app
 ADD . /app
 
 # Install any needed packages specified in requirements.txt
-RUN pip2 install -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
@@ -17,7 +19,6 @@ EXPOSE 80
 # Define environment variable
 ENV NAME World
 
-FROM rebor94/robotic_grip_grab_shadow_robotics:latest
 WORKDIR /workspace/src/
 
 COPY  app.py /workspace/src
