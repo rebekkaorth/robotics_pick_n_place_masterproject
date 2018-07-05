@@ -24,7 +24,7 @@ WORKDIR /workspace/src/
 COPY  app.py /workspace/src
 COPY  logger.py /workspace/src
 COPY  model.py /workspace/src
-COPY  robot_in_training.py /workspace/src
+COPY  dataset_provider.py /workspace/src
 COPY  trainer.py /workspace/src
 COPY  utils.py /workspace/src
 

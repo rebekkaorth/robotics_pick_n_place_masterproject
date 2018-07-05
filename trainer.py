@@ -16,7 +16,7 @@ import os
 import numpy as np
 import cv2
 import torch
-# import torch.nn as nn
+import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 from utils import CrossEntropyLoss2d
@@ -181,30 +181,30 @@ class Trainer(object):
         # Pass input data through model
         output_prob, state_feat = self.model.forward(input_color_data, input_depth_data, is_volatile, specific_rotation)
 
-        if self.method == 'reactive':
 
-            # Return affordances (and remove extra padding)
-            for rotate_idx in range(len(output_prob)):
-                if rotate_idx == 0:
-                    push_predictions = F.softmax(output_prob[rotate_idx][0], dim=1).cpu().data.numpy()[:, 0,
-                                       (padding_width / 2):(color_heightmap_2x.shape[0] / 2 - padding_width / 2),
-                                       (padding_width / 2):(color_heightmap_2x.shape[0] / 2 - padding_width / 2)]
-                    grasp_predictions = F.softmax(output_prob[rotate_idx][1], dim=1).cpu().data.numpy()[:, 0,
-                                        (padding_width / 2):(color_heightmap_2x.shape[0] / 2 - padding_width / 2),
-                                        (padding_width / 2):(color_heightmap_2x.shape[0] / 2 - padding_width / 2)]
-                else:
-                    push_predictions = np.concatenate((push_predictions,
-                                                       F.softmax(output_prob[rotate_idx][0], dim=1).cpu().data.numpy()[
-                                                       :, 0, (padding_width / 2):(
-                                                               color_heightmap_2x.shape[0] / 2 - padding_width / 2),
-                                                       (padding_width / 2):(color_heightmap_2x.shape[
-                                                                                0] / 2 - padding_width / 2)]), axis=0)
-                    grasp_predictions = np.concatenate((grasp_predictions,
-                                                        F.softmax(output_prob[rotate_idx][1], dim=1).cpu().data.numpy()[
-                                                        :, 0, (padding_width / 2):(color_heightmap_2x.shape[
-                                                                                       0] / 2 - padding_width / 2),
-                                                        (padding_width / 2):(color_heightmap_2x.shape[
-                                                                                 0] / 2 - padding_width / 2)]), axis=0)
+
+        # Return affordances (and remove extra padding)
+        for rotate_idx in range(len(output_prob)):
+            if rotate_idx == 0:
+                push_predictions = F.softmax(output_prob[rotate_idx][0], dim=1).cpu().data.numpy()[:, 0,
+                                   (padding_width / 2):(color_heightmap_2x.shape[0] / 2 - padding_width / 2),
+                                   (padding_width / 2):(color_heightmap_2x.shape[0] / 2 - padding_width / 2)]
+                grasp_predictions = F.softmax(output_prob[rotate_idx][1], dim=1).cpu().data.numpy()[:, 0,
+                                    (padding_width / 2):(color_heightmap_2x.shape[0] / 2 - padding_width / 2),
+                                    (padding_width / 2):(color_heightmap_2x.shape[0] / 2 - padding_width / 2)]
+            else:
+                push_predictions = np.concatenate((push_predictions,
+                                                   F.softmax(output_prob[rotate_idx][0], dim=1).cpu().data.numpy()[
+                                                   :, 0, (padding_width / 2):(
+                                                           color_heightmap_2x.shape[0] / 2 - padding_width / 2),
+                                                   (padding_width / 2):(color_heightmap_2x.shape[
+                                                                            0] / 2 - padding_width / 2)]), axis=0)
+                grasp_predictions = np.concatenate((grasp_predictions,
+                                                    F.softmax(output_prob[rotate_idx][1], dim=1).cpu().data.numpy()[
+                                                    :, 0, (padding_width / 2):(color_heightmap_2x.shape[
+                                                                                   0] / 2 - padding_width / 2),
+                                                    (padding_width / 2):(color_heightmap_2x.shape[
+                                                                             0] / 2 - padding_width / 2)]), axis=0)
 
         # elif self.method == 'reinforcement':
         #
@@ -526,3 +526,10 @@ class Trainer(object):
 
         best_pix_ind = np.unravel_index(np.argmax(grasp_predictions), grasp_predictions.shape)
         return best_pix_ind
+
+    def check_test(self, is_testing):
+        if is_testing:
+            print("testing")
+        else:
+            print("not in testing")
+
