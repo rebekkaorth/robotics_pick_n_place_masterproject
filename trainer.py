@@ -28,8 +28,8 @@ from scipy import ndimage
 
 
 class Trainer(object):
-    def __init__(self, is_testing, load_snapshot, snapshot_file, force_cpu):
 
+    def __init__(self, is_testing, load_snapshot, snapshot_file, force_cpu):
 
         # Check if CUDA can be used
         if torch.cuda.is_available() and not force_cpu:
@@ -47,24 +47,25 @@ class Trainer(object):
             Trend: supervised learning
             Both methods use different loss functions (classification loss --- Huber loss) 
             """
-        # Fully convolutional classification network for supervised learning
-            self.model = reactive_net(self.use_cuda)
 
-            # Initialize classification loss
-            push_num_classes = 3  # 0 - push, 1 - no change push, 2 - no loss
-            push_class_weights = torch.ones(push_num_classes)
-            push_class_weights[push_num_classes - 1] = 0
-            if self.use_cuda:
-                self.push_criterion = CrossEntropyLoss2d(push_class_weights.cuda()).cuda()
-            else:
-                self.push_criterion = CrossEntropyLoss2d(push_class_weights)
-            grasp_num_classes = 3  # 0 - grasp, 1 - failed grasp, 2 - no loss
-            grasp_class_weights = torch.ones(grasp_num_classes)
-            grasp_class_weights[grasp_num_classes - 1] = 0
-            if self.use_cuda:
-                self.grasp_criterion = CrossEntropyLoss2d(grasp_class_weights.cuda()).cuda()
-            else:
-                self.grasp_criterion = CrossEntropyLoss2d(grasp_class_weights)
+        # Fully convolutional classification network for supervised learning
+        self.model = reactive_net(self.use_cuda)
+
+        # Initialize classification loss
+        push_num_classes = 3  # 0 - push, 1 - no change push, 2 - no loss
+        push_class_weights = torch.ones(push_num_classes)
+        push_class_weights[push_num_classes - 1] = 0
+        if self.use_cuda:
+            self.push_criterion = CrossEntropyLoss2d(push_class_weights.cuda()).cuda()
+        else:
+            self.push_criterion = CrossEntropyLoss2d(push_class_weights)
+        grasp_num_classes = 3  # 0 - grasp, 1 - failed grasp, 2 - no loss
+        grasp_class_weights = torch.ones(grasp_num_classes)
+        grasp_class_weights[grasp_num_classes - 1] = 0
+        if self.use_cuda:
+            self.grasp_criterion = CrossEntropyLoss2d(grasp_class_weights.cuda()).cuda()
+        else:
+            self.grasp_criterion = CrossEntropyLoss2d(grasp_class_weights)
 
         # # Fully convolutional Q network for deep reinforcement learning
         # elif self.method == 'reinforcement':

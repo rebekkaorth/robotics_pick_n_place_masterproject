@@ -70,6 +70,7 @@ def main(args):
     # Initialize pick-and-place system (camera and robot)
 
     # Initialize trainer
+    force_cpu = False
     trainer = Trainer(is_testing, load_snapshot, snapshot_file, force_cpu)
 
     # Initialize data logger
