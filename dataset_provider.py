@@ -51,19 +51,18 @@ class Dataset_provider (Dataset):
 
         return depth_img
 
-    def load_dataset(self):
-        ycb_downloader.initialize_dataset()
-
     def data_loader(self, root_dir):
-        files = []
+        files = [[]]
         from os import walk
-        for filenames in walk(root_dir):
-            files.extend(filenames)
+        for (dirpath, dirname, filenames) in walk(root_dir):
+            files.extend(dirname)
+
+            for imgNames in walk(root_dir + '/' + dirname + '/' + dirname + '_1'):
+                files[dirname].extend(imgNames)
 
         return files
 
 
-date = Dataset_provider('ycb')
+date = Dataset_provider('rgbd-dataset')
 # print(date.get_img_from_dataset(date.root_dir, date.data_loader(date.root_dir), 11))
-date.load_dataset()
-print(date.data_loader('ycb'))
+print(date.data_loader('rgbd-dataset'))
