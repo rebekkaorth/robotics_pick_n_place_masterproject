@@ -3,11 +3,12 @@ import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset
 from torchvision import transforms, datasets
+import ycb_downloader
 
 
 class Dataset_provider (Dataset):
 
-    def __init__(self, file, root_dir, transform=None):
+    def __init__(self, root_dir, transform=None):
         """
         Args:
         csv_file (string): Path to the csv file with annotations.
@@ -16,7 +17,6 @@ class Dataset_provider (Dataset):
         on a sample.
         """
 
-        self.file = pd.read_csv(file)
         self.root_dir = root_dir
         self.transform = transform
 
@@ -43,28 +43,27 @@ class Dataset_provider (Dataset):
 
         return dataset_loader
 
-    def get_img_from_dataset(self, datatset_loader, idx):
+    def get_img_from_dataset(self, root_dir, datatset_loader, idx):
 
-        color_img = datatset_loader[idx]
-        depth_img = datatset_loader[idx]
+        load_tensor = datatset_loader[2][idx]
+        depth_img = np.load(str(root_dir) + '/' + str(load_tensor))['arr_0'][478]
+        color_img = 0
 
-        return color_img, depth_img
+        return depth_img
+
+    def load_dataset(self):
+        ycb_downloader.initialize_dataset()
+
+    def data_loader(self, root_dir):
+        files = []
+        from os import walk
+        for filenames in walk(root_dir):
+            files.extend(filenames)
+
+        return files
 
 
-    # def convert_images(self, raw_image):
-    #
-    #     raw_image = raw_image
-    #     im_width = 640
-    #     im_height = 480
-    #
-    #     # resolution = 640 * 480
-    #
-    #     depth_scale = np.fromstring(raw_image[(9 * 4):(10 * 4)], np.float32)[0]
-    #     depth_img = np.fromstring(raw_image[(10 * 4):((10 * 4) + im_width * im_height * 2)], np.uint16).reshape(
-    #         im_height, im_width)
-    #     color_img = np.fromstring(raw_image[((10 * 4) + im_width * im_height * 2):], np.uint8).reshape(
-    #         im_height, im_width, 3)
-    #     depth_img = depth_img.astype(float) * depth_scale
-    #     color_img = color_img.astype(np.uint8)
-    #
-    #     return color_img, depth_img, depth_scale
+date = Dataset_provider('ycb')
+# print(date.get_img_from_dataset(date.root_dir, date.data_loader(date.root_dir), 11))
+date.load_dataset()
+print(date.data_loader('ycb'))
