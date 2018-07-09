@@ -4,6 +4,7 @@ import pandas as pd
 from torch.utils.data import Dataset
 from torchvision import transforms, datasets
 import ycb_downloader
+import os
 
 
 class Dataset_provider (Dataset):
@@ -51,18 +52,33 @@ class Dataset_provider (Dataset):
 
         return depth_img
 
-    def data_loader(self, root_dir):
-        files = [[]]
-        from os import walk
-        for (dirpath, dirname, filenames) in walk(root_dir):
-            files.extend(dirname)
+    # Download dataset
+    def data_loader(self):
+        ycb_downloader.download_files()
 
-            for imgNames in walk(root_dir + '/' + dirname + '/' + dirname + '_1'):
-                files[dirname].extend(imgNames)
+    def get_directory_name_from_downloaded_files(self):
+        path = './ycb/'
+        object_directories = []
 
-        return files
+        for object_directory in os.listdir(path):
+            object_directories.append(object_directory)
+
+        return object_directories
+
+    def get_images(self, idx):
+
+        # load object directory based on given index
+        object_dir = self.get_directory_name_from_downloaded_files()[idx]
+        print(object_dir)
+
+        # load content directory into array to make it accessible
+        color_img = open('./ycb/' + object_dir + '/NP1_0.jpg')
+        print(color_img)
+        depth_img = open('./ycb/' + object_dir + '/masks/NP1_0_mask.pbm')
+
+        return color_img, depth_img
 
 
-date = Dataset_provider('rgbd-dataset')
-# print(date.get_img_from_dataset(date.root_dir, date.data_loader(date.root_dir), 11))
-print(date.data_loader('rgbd-dataset'))
+dataset = Dataset_provider('ycb')
+dataset.get_images(0)
+

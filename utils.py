@@ -15,7 +15,7 @@ import torch.nn.functional as F
   year={2018}
 }
 
-This file is equivalent to the trainer.py file in the project names above.
+This file is equivalent to the utils.py file in the project names above.
 It has modifications fitting the project requirements.
 
 """

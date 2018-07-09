@@ -35,7 +35,7 @@ def main(args):
     tcp_port = args.tcp_port
     rtc_host_ip = args.rtc_host_ip  # IP and port to robot arm as real-time client (UR5)
     rtc_port = args.rtc_port
-    workspace_limits = None
+    workspace_limits = np.asanyarray([[-0.724, -0.276], [-0.224, 0.224], [-0.0001, 0.4]])
     heightmap_resolution = args.heightmap_resolution  # Meters per pixel of heightmap
     random_seed = args.random_seed
     force_cpu = args.force_cpu
@@ -77,7 +77,7 @@ def main(args):
     logger = Logger(continue_logging, logging_directory)
 
     # Initialize dataset_provider
-    dataset_provider = Dataset_provider(obj_mesh_dir, './dataset/', transform=None)
+    dataset_provider = Dataset_provider('./ycb')
 
     """
     logger.save_camera_info(robot.cam_intrinsics, robot.cam_pose,
@@ -254,7 +254,9 @@ def main(args):
 
         # in training the images should not come from camera but from dataset
         # get latest image -> here it should be get a new image from the dataset
-        color_img, depth_img = dataset_provider.get_img_from_dataset(dataset_provider.transform_dataset(), idx=0)
+        color_img, depth_img = dataset_provider.get_images(0)
+        print(color_img)
+        print(depth_img)
         # depth_img = depth_img * depth_scale  # Apply depth scale from calibration
 
         # Get heightmap from RGB-D image (by re-projecting 3D point cloud)
