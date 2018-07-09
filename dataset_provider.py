@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import pandas as pd
+from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms, datasets
 import ycb_downloader
@@ -67,14 +68,15 @@ class Dataset_provider (Dataset):
 
     def get_images(self, idx):
 
+        # self.data_loader()
         # load object directory based on given index
         object_dir = self.get_directory_name_from_downloaded_files()[idx]
         print(object_dir)
 
         # load content directory into array to make it accessible
-        color_img = open('./ycb/' + object_dir + '/NP1_0.jpg')
+        color_img = Image.open('./ycb/' + object_dir + '/NP1_0.jpg')
         print(color_img)
-        depth_img = open('./ycb/' + object_dir + '/masks/NP1_0_mask.pbm')
+        depth_img = Image.open('./ycb/' + object_dir + '/masks/NP1_0_mask.pbm')
 
         return color_img, depth_img
 
