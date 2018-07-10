@@ -43,7 +43,7 @@ objects_to_download = ["002_master_chef_can"]
 # 'google_512k' contains google meshes with 512k vertices.
 # See the website for more details.
 # files_to_download = ["berkeley_rgbd", "berkeley_rgb_highres", "berkeley_processed", "google_16k", "google_64k", "google_512k"]
-files_to_download = ["berkeley_rgbd"]
+files_to_download = ["berkeley_processed"]
 
 # Extract all files from the downloaded .tgz, and remove .tgz files.
 # If false, will just download all .tgz files to output_directory

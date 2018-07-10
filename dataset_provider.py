@@ -1,11 +1,11 @@
 import torch
 import numpy as np
-import pandas as pd
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms, datasets
 import ycb_downloader
 import os
+from pyntcloud import io  # https://github.com/daavoo/pyntcloud (10/07/2018)
 
 
 class Dataset_provider (Dataset):
@@ -78,7 +78,9 @@ class Dataset_provider (Dataset):
         print(color_img)
         depth_img = Image.open('./ycb/' + object_dir + '/masks/NP1_0_mask.pbm')
 
-        return color_img, depth_img
+        cloud_file = io.read_ply('./ycb/' + object_dir + '/clouds/merged_cloud.ply')
+
+        return color_img, depth_img, cloud_file
 
 
 dataset = Dataset_provider('ycb')

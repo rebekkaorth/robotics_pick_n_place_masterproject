@@ -5,3 +5,4 @@ opencv-python
 numpy
 matplotlib
 pandas
+git+https://github.com/daavoo/pyntcloud

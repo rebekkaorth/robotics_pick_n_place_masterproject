@@ -2,10 +2,13 @@ import struct
 import math
 import numpy as np
 import cv2
+import pandas as pd
 # import torch
 import torch.nn as nn
 import torch.nn.functional as F
 # from torch.autograd import Variable
+from pyntcloud import PyntCloud
+
 
 """
 @article{zeng2018learning,
@@ -21,51 +24,72 @@ It has modifications fitting the project requirements.
 """
 
 
-def get_pointcloud(color_img, depth_img, camera_intrinsics):
+def get_pointcloud(color_img, depth_img, camera_intrinsics, cloud_file):
+
+    point_cloud = cloud_file
+    print("point cloud:")
+    print(point_cloud['points'])
+
     # Get depth image size
+    depth_img = np.asarray(depth_img)
+    # print(depth_img)
     shape = depth_img.shape
+    # print(shape)
     im_w = shape[1]
     im_h = shape[0]
 
-    # Project depth into 3D point cloud in camera coordinates
+    # # Project depth into 3D point cloud in camera coordinates
     # pix_x, pix_y = np.meshgrid(np.linspace(0, im_w - 1, im_w), np.linspace(0, im_h - 1, im_h))
+    # # [0][2] + [1][2] = principle point  --  [0][0] + [1][1] = focal length
     # cam_pts_x = np.multiply(pix_x - camera_intrinsics[0][2], depth_img / camera_intrinsics[0][0])
     # cam_pts_y = np.multiply(pix_y - camera_intrinsics[1][2], depth_img / camera_intrinsics[1][1])
     # cam_pts_z = depth_img.copy()
     # cam_pts_x.shape = (im_h * im_w, 1)
     # cam_pts_y.shape = (im_h * im_w, 1)
     # cam_pts_z.shape = (im_h * im_w, 1)
-
-    # Reshape image into colors for 3D point cloud
-    rgb_pts_r = color_img[:, :, 0]
-    rgb_pts_g = color_img[:, :, 1]
-    rgb_pts_b = color_img[:, :, 2]
-    rgb_pts_r.shape = (im_h * im_w, 1)
-    rgb_pts_g.shape = (im_h * im_w, 1)
-    rgb_pts_b.shape = (im_h * im_w, 1)
+    #
+    # # Reshape image into colors for 3D point cloud
+    # color_img = np.asarray(color_img)
+    # rgb_pts_r = color_img[:, :, 0]
+    # rgb_pts_g = color_img[:, :, 1]
+    # rgb_pts_b = color_img[:, :, 2]
+    # rgb_pts_r.shape = (im_h * im_w, 1)
+    # rgb_pts_g.shape = (im_h * im_w, 1)
+    # rgb_pts_b.shape = (im_h * im_w, 1)
 
     # cam_pts = np.concatenate((cam_pts_x, cam_pts_y, cam_pts_z), axis=1)
-    rgb_pts = np.concatenate((rgb_pts_r, rgb_pts_g, rgb_pts_b), axis=1)
+    cam_pts = np.concatenate((point_cloud['points']['x'],
+                             point_cloud['points']['y'],
+                             point_cloud['points']['z']), axis=1)
+    # rgb_pts = np.concatenate((rgb_pts_r, rgb_pts_g, rgb_pts_b), axis=1)
+    rgb_pts = np.concatenate((point_cloud['points']['red'],
+                             point_cloud['points']['green'],
+                             point_cloud['points']['blue']), axis=1)
 
-    return rgb_pts
+    print("cam_pts")
+    # print(cam_pts)
+    print("rgb_pts")
+    # print(rgb_pts)
+
+    return cam_pts, rgb_pts
 
 
-def get_heightmap(color_img, depth_img, cam_intrinsics, cam_pose, workspace_limits, heightmap_resolution):
+def get_heightmap(color_img, depth_img, cam_intrinsics, cam_pose, workspace_limits, heightmap_resolution, cloud_file):
     # Compute heightmap size
     heightmap_size = np.round(((workspace_limits[1][1] - workspace_limits[1][0]) / heightmap_resolution,
                                (workspace_limits[0][1] - workspace_limits[0][0]) / heightmap_resolution)).astype(int)
 
     # Get 3D point cloud from RGB-D images
-    surface_pts, color_pts = get_pointcloud(color_img, depth_img, cam_intrinsics)
+    surface_pts, color_pts = get_pointcloud(color_img, depth_img, cam_intrinsics, cloud_file)
 
     # Transform 3D point cloud from camera coordinates to robot coordinates
     # surface_pts = np.transpose(
         # np.dot(cam_pose[0:3, 0:3], np.transpose(surface_pts)) + np.tile(cam_pose[0:3, 3:], (1, surface_pts.shape[0])))
 
     # Sort surface points by z value
-    # sort_z_ind = np.argsort(surface_pts[:, 2])
-    # surface_pts = surface_pts[sort_z_ind]
-    # color_pts = color_pts[sort_z_ind]
+    sort_z_ind = np.argsort(surface_pts[:, 2])
+    surface_pts = surface_pts[sort_z_ind]
+    color_pts = color_pts[sort_z_ind]
 
     # Filter out surface points outside heightmap boundaries
     heightmap_valid_ind = np.logical_and(np.logical_and(np.logical_and(

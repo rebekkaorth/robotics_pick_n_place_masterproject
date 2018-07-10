@@ -254,14 +254,14 @@ def main(args):
 
         # in training the images should not come from camera but from dataset
         # get latest image -> here it should be get a new image from the dataset
-        color_img, depth_img = dataset_provider.get_images(0)
+        color_img, depth_img, cloud_file = dataset_provider.get_images(0)
         print(color_img)
         print(depth_img)
         # depth_img = depth_img * depth_scale  # Apply depth scale from calibration
 
         # Get heightmap from RGB-D image (by re-projecting 3D point cloud)
         color_heightmap, depth_heightmap = utils.get_heightmap(color_img, depth_img, None, None, workspace_limits,
-                                                               heightmap_resolution)
+                                                               heightmap_resolution, cloud_file)
 
         valid_depth_heightmap = depth_heightmap.copy()
         valid_depth_heightmap[np.isnan(valid_depth_heightmap)] = 0
