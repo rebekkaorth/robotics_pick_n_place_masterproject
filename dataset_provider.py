@@ -32,6 +32,8 @@ class Dataset_provider (Dataset):
         -> images are converted from numpy images to torch images 
     images are therefor pre-processed 
     """
+
+    # not clear if function is needed
     def transform_dataset(self):
         data_transform = transforms.Compose([
             transforms.RandomSizedCrop(224),
@@ -45,6 +47,7 @@ class Dataset_provider (Dataset):
 
         return dataset_loader
 
+    # not clear if function is needed
     def get_img_from_dataset(self, root_dir, datatset_loader, idx):
 
         load_tensor = datatset_loader[2][idx]

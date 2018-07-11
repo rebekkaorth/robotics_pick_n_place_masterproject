@@ -249,7 +249,7 @@ class reactive_net(nn.Module):
 #
 #         # Initialize output variable (for backprop)
 #         self.interm_feat = []
-#         self.output_prob = []https://dict.leo.org/german-english/feat
+#         self.output_prob = []
 #
 #     def forward(self, input_color_data, input_depth_data, is_volatile=False, specific_rotation=-1):
 #

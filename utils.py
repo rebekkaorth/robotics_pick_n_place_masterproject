@@ -27,16 +27,17 @@ It has modifications fitting the project requirements.
 def get_pointcloud(color_img, depth_img, camera_intrinsics, cloud_file):
 
     point_cloud = cloud_file
+    print(type(point_cloud))
     print("point cloud:")
     print(point_cloud['points'])
 
     # Get depth image size
-    depth_img = np.asarray(depth_img)
+    # depth_img = np.asarray(depth_img)
     # print(depth_img)
-    shape = depth_img.shape
+    # shape = depth_img.shape
     # print(shape)
-    im_w = shape[1]
-    im_h = shape[0]
+    # im_w = shape[1]
+    # im_h = shape[0]
 
     # # Project depth into 3D point cloud in camera coordinates
     # pix_x, pix_y = np.meshgrid(np.linspace(0, im_w - 1, im_w), np.linspace(0, im_h - 1, im_h))
@@ -58,18 +59,41 @@ def get_pointcloud(color_img, depth_img, camera_intrinsics, cloud_file):
     # rgb_pts_b.shape = (im_h * im_w, 1)
 
     # cam_pts = np.concatenate((cam_pts_x, cam_pts_y, cam_pts_z), axis=1)
-    cam_pts = np.concatenate((point_cloud['points']['x'],
-                             point_cloud['points']['y'],
-                             point_cloud['points']['z']), axis=1)
-    # rgb_pts = np.concatenate((rgb_pts_r, rgb_pts_g, rgb_pts_b), axis=1)
-    rgb_pts = np.concatenate((point_cloud['points']['red'],
-                             point_cloud['points']['green'],
-                             point_cloud['points']['blue']), axis=1)
+    x = point_cloud['points']['x']
+    y = point_cloud['points']['y']
+    z = point_cloud['points']['z']
 
-    print("cam_pts")
-    # print(cam_pts)
-    print("rgb_pts")
-    # print(rgb_pts)
+    # x = np.array(x)
+    # y = np.array(y)
+    # z = np.array(z)
+    #
+    # cam_pts = []
+    # cam_pts.append(x)
+    # cam_pts.append(y)
+    # cam_pts.append(z)
+    # cam_pts = np.matrix(cam_pts)
+
+    # d1 = dict(d.items()[len(d)/2:])
+
+    # rgb_pts = np.concatenate((rgb_pts_r, rgb_pts_g, rgb_pts_b), axis=1)
+    red = point_cloud['points']['red']
+    green = point_cloud['points']['green']
+    blue = point_cloud['points']['blue']
+
+    # red = np.array(red)
+    # green = np.array(green)
+    # blue = np.array(blue)
+    #
+    # rgb_pts = []
+    # rgb_pts.append(red)
+    # rgb_pts.append(green)
+    # rgb_pts.append(blue)
+    # rgb_pts = np.matrix(rgb_pts)
+
+    rgb_pts = dict(point_cloud.items()[len(point_cloud)/2])
+    cam_pts = 0
+    print('rgb_pts')
+    print(rgb_pts)
 
     return cam_pts, rgb_pts
 
@@ -92,25 +116,29 @@ def get_heightmap(color_img, depth_img, cam_intrinsics, cam_pose, workspace_limi
     color_pts = color_pts[sort_z_ind]
 
     # Filter out surface points outside heightmap boundaries
-    heightmap_valid_ind = np.logical_and(np.logical_and(np.logical_and(
-        np.logical_and(surface_pts[:, 0] >= workspace_limits[0][0], surface_pts[:, 0] < workspace_limits[0][1]),
-        surface_pts[:, 1] >= workspace_limits[1][0]), surface_pts[:, 1] < workspace_limits[1][1]),
-                                         surface_pts[:, 2] < workspace_limits[2][1])
-    surface_pts = surface_pts[heightmap_valid_ind]
-    color_pts = color_pts[heightmap_valid_ind]
+    # heightmap_valid_ind = np.logical_and(np.logical_and(np.logical_and(
+    #    np.logical_and(surface_pts[:, 0] >= workspace_limits[0][0], surface_pts[:, 0] < workspace_limits[0][1]),
+    #    surface_pts[:, 1] >= workspace_limits[1][0]), surface_pts[:, 1] < workspace_limits[1][1]),
+    #                                      surface_pts[:, 2] < workspace_limits[2][1])
+
+    # surface_pts = surface_pts[heightmap_valid_ind]
+    # color_pts = color_pts[heightmap_valid_ind]
 
     # Create orthographic top-down-view RGB-D heightmaps
     color_heightmap_r = np.zeros((heightmap_size[0], heightmap_size[1], 1), dtype=np.uint8)
     color_heightmap_g = np.zeros((heightmap_size[0], heightmap_size[1], 1), dtype=np.uint8)
     color_heightmap_b = np.zeros((heightmap_size[0], heightmap_size[1], 1), dtype=np.uint8)
     depth_heightmap = np.zeros(heightmap_size)
+
     heightmap_pix_x = np.floor((surface_pts[:, 0] - workspace_limits[0][0]) / heightmap_resolution).astype(int)
     heightmap_pix_y = np.floor((surface_pts[:, 1] - workspace_limits[1][0]) / heightmap_resolution).astype(int)
+
     color_heightmap_r[heightmap_pix_y, heightmap_pix_x] = color_pts[:, [0]]
     color_heightmap_g[heightmap_pix_y, heightmap_pix_x] = color_pts[:, [1]]
     color_heightmap_b[heightmap_pix_y, heightmap_pix_x] = color_pts[:, [2]]
     color_heightmap = np.concatenate((color_heightmap_r, color_heightmap_g, color_heightmap_b), axis=2)
-    depth_heightmap[heightmap_pix_y, heightmap_pix_x] = surface_pts[:, 2]
+
+    depth_heightmap[heightmap_pix_y, heightmap_pix_x] = surface_pts[:, 2]  # z values of point cloud
     z_bottom = workspace_limits[2][0]
     depth_heightmap = depth_heightmap - z_bottom
     depth_heightmap[depth_heightmap < 0] = 0
