@@ -86,6 +86,3 @@ class Dataset_provider (Dataset):
         return color_img, depth_img, cloud_file
 
 
-dataset = Dataset_provider('ycb')
-dataset.get_images(0)
-
