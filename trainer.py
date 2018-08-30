@@ -6,7 +6,8 @@
   year={2018}
 }
 
-This file is equivalent to the trainer.py file in the project names above.
+This file is equivalent to the trainer.py file in the project names above with adjustments according to the project at
+hand.
 It has modifications fitting the project requirements.
 
 """

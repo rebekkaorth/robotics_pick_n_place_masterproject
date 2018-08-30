@@ -1,3 +1,7 @@
+"""
+utils.py calculates the point cloud and height map based on color and depth images as well as camera information
+"""
+
 import struct
 import math
 import numpy as np

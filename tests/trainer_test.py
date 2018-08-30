@@ -1,6 +1,10 @@
 import unittest
 from trainer import Trainer
 
+'''
+Unit test to test trainer.py 
+'''
+
 
 class TestTrainer(unittest.TestCase):
 

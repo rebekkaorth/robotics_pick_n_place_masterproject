@@ -8,7 +8,8 @@
   year={2018}
 }
 
-This file is equivalent to the main.py file in the project names above.
+This file is equivalent to the main.py file in the project names above with adjustments according to the project at
+hand.
 It has modifications fitting the project requirements.
 
 """
@@ -29,7 +30,8 @@ import utils
 
 def main(args):
     # --------------- Setup options ---------------
-    obj_mesh_dir = os.path.abspath(args.obj_mesh_dir)  # Directory containing 3D mesh files (.obj) of objects to be added to simulation
+    obj_mesh_dir = os.path.abspath(args.obj_mesh_dir)  # Directory containing 3D mesh files (.obj) of objects to be
+    # added to simulation
     num_obj = args.num_obj  # Number of objects to add to simulation
     tcp_host_ip = args.tcp_host_ip  # IP and port to robot arm as TCP client (UR5)
     tcp_port = args.tcp_port
@@ -129,7 +131,8 @@ def main(args):
                 logger.write_to_log('is-exploit', trainer.is_exploit_log)
 
                 """
-                 If heuristic bootstrapping is enabled: if change has not been detected more than 2 times, execute heuristic algorithm to detect grasps/pushes
+                 If heuristic bootstrapping is enabled: if change has not been detected more than 2 times, execute 
+                 heuristic algorithm to detect grasps/pushes
                 NOTE: typically not necessary and can reduce final performance.
                 """
 

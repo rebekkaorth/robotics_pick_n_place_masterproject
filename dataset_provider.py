@@ -1,3 +1,8 @@
+"""
+Dataset provider to prepare dataset images to be used by the neural network/ trainer.py as input.
+
+"""
+
 import torch
 import numpy as np
 from PIL import Image

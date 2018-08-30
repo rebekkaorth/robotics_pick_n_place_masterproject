@@ -1,6 +1,10 @@
 import unittest
 from model import reactive_net
 
+'''
+Unit test to test model.py 
+'''
+
 
 class TestModelMethod(unittest.TestCase):
 

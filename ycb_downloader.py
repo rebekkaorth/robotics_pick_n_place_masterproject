@@ -1,3 +1,8 @@
+"""
+Downloader for the dataset, that the neural network was supposed to be trained with.
+It gives the option of downloading all files of the dataset or just particular images.
+"""
+
 import os
 import sys
 import json
