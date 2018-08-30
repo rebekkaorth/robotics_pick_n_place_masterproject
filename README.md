@@ -1,70 +1,21 @@
 # Robotics Pick n' Place with a Smart Grasping System 
 
-The project is part of my master's project for my Master of Science in Information Technology at the University of Glasgow. 
-It is an approach to enable a robot classifying poses of objects in a 3D room and grasping them in a 3D simulation environment. 
-It uses a Convolutional Neural Network for the classification and the Gazebo simulation environment. 
+## Introduction
 
-## Getting started 
+This project is part of my master's project for my MSc. Software Development at the University of Glasgow. 
+It is an approach to enable a robot to classify object poses and grasping them in a 3D simulation environment. 
+For the classification the robot uses a convolutional neural network. 
 
-Clone this repository:
+This repository contains the neural network part of the project which was used and adapted. This neural network was originally developed by Andy Zeng, Shuran Song, Stefan Welker, Johnny Lee, Alberto Rodriguez and Thomas Funkhouser. Their paper "Learning Synergies between Pushing and Grasping with Self-supervised Deep Reinforcement Learning" (2018) describes how they implemented a ConvNet to enable a robot to push and grasp simple objects. (paper : https://arxiv.org/pdf/1803.09956.pdf - repository: https://github.com/andyzeng/visual-pushing-grasping). The repository at hand is a state of A. Zeng et al.'s repository from 4th of July 2018.  
 
-```
-git clone https://github.com/rebekkaorth/robitics_pick_n_place_masterproject
-```
-Its Dockerfile builds the container from the Shadow Robotics sandbox from which I saved a snapshot. This snapshot can be found here: https://hub.docker.com/r/rebor94/robotic_grip_grab_shadow_robotics/
-The snapshot was taken on the 26/08/2018.
+To use the above mentioned neural network in this project, the repository of the neural network was taken and its code was adjusted to fit the needs of the project at hand. Originally the code was supposed to be implemented in the below described simulation. However, due to the scope of this project, the implementation of the neural network was put on hold and has not been finished. Therefore, the content of this repository represents the started implementation and adjustment of the described neural network!
 
-## Prerequisites 
+## 2nd part of the described project
 
-Go to the repository directory to install all needed requirements. The following command assumes that you a pip installed. 
+As indicated above, the project could be split into two parts. One being the neural network adjustment and its implementation and the second one being the programming of the robot to grasp objects in a 3D simulation. 
 
-```
-pip install -r requirements.txt
-```
-
-Go to the directory of the cloned repository and build the Docker container: 
-
-```
-docker build .
-```
-
-## Installing
-
-The original code can be found in the following Github repository: 
-https://github.com/shadow-robot/smart_grasping_sandbox
-
-The Docker Hub that this repository refers to, can be found here: 
-https://hub.docker.com/r/shadowrobot/shadow-robot/
-
-Run the Docker container: 
-
-```
-docker run -it --name sgs -p 8080:8080 -p 8888:8888 -p 8181:8181 -p 7681:7681 <ID of the Docker image>
-```
-
-If the code is running, you can call the Gazebo simulation environment by opening your favorite browser and calling: 
-
-```
-localhost:8080/
-```
-
-The IDE Cloud 9 by AWS can be called like: 
-
-```
-localhost:8181/
-```
-
-## Training of the Neural Netowork
-
-### Dataset used to train the neural network
-The website where the dataset was downloaded from (06/07/2018): 
-http://ycb-benchmarks.s3-website-us-east-1.amazonaws.com 
-
-## Examples of How the system works
-
-### Identifying poses of models 
-
-### Grasping identified models
+This 2nd part of the project can be found here: 
+https://github.com/rebekkaorth/ros_smart_grasping_pkgs
 
 ## Authors
 Rebekka Orth - 2312288O - 2312288O@student.gla.ac.uk
@@ -75,9 +26,3 @@ https://github.com/andyzeng/visual-pushing-grasping
 
 The paper corresponding to that repository can be found here: 
 https://arxiv.org/pdf/1803.09956.pdf
-
-The code of the simulation and the robot comes from: 
-https://github.com/shadow-robot/smart_grasping_sandbox
-
-Shadow robotics website can be found here: 
-https://www.shadowrobot.com 
