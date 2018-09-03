@@ -1,4 +1,4 @@
-# Robotics Pick n' Place with a Smart Grasping System 
+# Robotics Pick 'n' Place with a Smart Grasping System 
 
 ## Introduction
 
