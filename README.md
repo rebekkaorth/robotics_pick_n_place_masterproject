@@ -8,7 +8,7 @@ For the classification the robot uses a convolutional neural network.
 
 This repository contains the neural network part of the project which was used and adapted. This neural network was originally developed by Andy Zeng, Shuran Song, Stefan Welker, Johnny Lee, Alberto Rodriguez and Thomas Funkhouser. Their paper "Learning Synergies between Pushing and Grasping with Self-supervised Deep Reinforcement Learning" (2018) describes how they implemented a ConvNet to enable a robot to push and grasp simple objects. (paper : https://arxiv.org/pdf/1803.09956.pdf - repository: https://github.com/andyzeng/visual-pushing-grasping). The repository at hand is a state of A. Zeng et al.'s repository from 4th of July 2018.  
 
-To use the above mentioned neural network in this project, the repository of the neural network was taken and its code was adjusted to fit the needs of the project at hand. Originally the code was supposed to be implemented in the below described simulation. However, due to the scope of this project, the implementation of the neural network was put on hold and has not been finished. Therefore, the content of this repository represents the started implementation and adjustment of the described neural network!
+To use the above mentioned neural network in this project, the repository of the neural network was taken and its code was adjusted to fit the needs of the project at hand. Originally the code was supposed to be implemented in a simulation. However, due to the scope of this project, the implementation of the neural network was put on hold and has not been finished. Therefore, the content of this repository represents the started implementation and adjustment of the described neural network!
 
 ## 2nd part of the described project
 
