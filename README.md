@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This project is part of my master's project for my MSc. Software Development at the University of Glasgow. 
+This project is part of my master's project for my MSc. Software Development at the University of Glasgow (summer 2018). 
 It is an approach to enable a robot to classify object poses and grasping them in a 3D simulation environment. 
 For the classification the robot uses a convolutional neural network. 
 
